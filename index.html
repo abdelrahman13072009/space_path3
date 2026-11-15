@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MarsPath — Postcards from Mars · NASA GIS &amp; Expedition Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="airmail-bar" aria-hidden="true"></div>
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M5.5 15.5C8.5 13 15.5 11 18.5 8.5"></path>
+          <circle cx="15" cy="9" r="1.5" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <div>
+        <h1>MarsPath</h1>
+        <p>POSTCARDS FROM MARS · NASA / USGS GIS</p>
+      </div>
+    </div>
+
+    <nav class="main-nav" aria-label="Primary sections">
+      <a href="#section-map" class="nav-link"><span>01</span>Mission Map</a>
+      <a href="#section-environment" class="nav-link"><span>02</span>Environment</a>
+      <a href="#section-routes" class="nav-link"><span>03</span>Route Analysis</a>
+      <a href="#section-science" class="nav-link"><span>04</span>Science &amp; Sources</a>
+    </nav>
+
+    <div class="top-right top-actions">
+      <button type="button" class="pill-btn ai" id="openCopilotTopBtn">🤖 Site AI Analyst</button>
+      <button type="button" class="pill-btn hud" id="openVisorBtn">🥽 Visor HUD (AR)</button>
+      <button type="button" class="pill-btn danger" id="topEmergencyBtn">⚠ Emergency Abort</button>
+      <div class="status-pill"><span class="dot"></span>NASA / USGS VERIFIED</div>
+      <button type="button" class="pill-btn" id="themeToggleBtn"><span id="themeIcon">☀️</span> <span id="themeLabel">Parchment</span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- POSTCARD HERO DISPATCH -->
+  <section class="hero">
+    <div>
+      <div class="postcard-eyebrow">✦ FIELD DISPATCH · SYRTIS MAJOR QUADRANGLE · IAU2000:49900</div>
+      <h2>Jezero Crater Multi-Layer GIS &amp; Expedition Planner</h2>
+      <p>Inspect stacked NASA JPL Mars Trek orbital mosaics, USGS Planetary Geologic Map units, MOLA shaded relief, and Perseverance reference traverses to evaluate safe EVA routes, dust visibility, and metabolic oxygen budgets.</p>
+      <div class="steps">
+        <span class="step"><strong>1.</strong> Stack GIS Layers</span>
+        <span class="step"><strong>2.</strong> Pick Waypoints</span>
+        <span class="step"><strong>3.</strong> Tune Dust &amp; Load</span>
+        <span class="step"><strong>4.</strong> Compare 3 Routes</span>
+        <span class="step"><strong>5.</strong> Launch AR Visor</span>
+      </div>
+    </div>
+    <div class="mars-stamp" aria-hidden="true">
+      <div class="mars-stamp-inner">
+        <div class="mars-stamp-kicker">MARS POSTAGE · SOL 1176</div>
+        <div class="mars-stamp-title">JEZERO 18.45°N</div>
+        <div class="mars-stamp-coords">77.4150°E · −2,540 M</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE KPI BAR -->
+  <section class="kpi-grid" aria-label="Active traverse metrics">
+    <div class="kpi">
+      <div class="kpi-top"><span>Active Route</span> <span class="badge badge-sim">Simulated</span></div>
+      <strong id="kpiDistance">4.8 km</strong>
+      <small id="kpiRouteName">Route A · Delta Fan Rim</small>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top"><span>Est. Duration</span> <span class="badge badge-model">Modeled</span></div>
+      <strong id="kpiDuration">3.5 hrs</strong>
+      <small id="kpiPaceSub">Pace: 1.38 km/h (100% nominal)</small>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top"><span>Est. O₂ Cost</span> <span class="badge badge-model">Bioenergetics</span></div>
+      <strong id="kpiO2">389 L O₂</strong>
+      <small id="kpiKcalSub">1,871 kcal · Reserve: 161 L (29%)</small>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top"><span>Visibility (τ)</span> <span class="badge badge-model">Beer-Lambert</span></div>
+      <strong id="kpiVisibility">47%</strong>
+      <small id="kpiDustSub">τ = 0.5 · k = 1.5 (Good)</small>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top"><span>Science &amp; Hazard</span> <span class="badge badge-sim">Evaluated</span></div>
+      <strong id="kpiScienceRisk">3 Targets · Moderate</strong>
+      <small id="kpiTerrainSub">Δh +116 m · Friction μ = 0.16</small>
+    </div>
+  </section>
+
+  <!-- SECTION 01: MISSION MAP -->
+  <section id="section-map" class="section">
+    <div class="sec-head">
+      <div class="sec-title">
+        <span class="sec-num">01</span>
+        <h3>Mission Map — NASA Mars Trek, USGS Geologic Units &amp; Traverse Corridors</h3>
+      </div>
+      <p>Drag to pan, scroll/pinch to zoom, hover for live telemetry, or use the Ruler &amp; Elevation Profile tools</p>
+    </div>
+
+    <div class="map-grid">
+      <div class="card">
+        <div class="airmail-bar" aria-hidden="true"></div>
+        <div class="card-head">
+          <div>
+            <h4>Jezero Crater Planetary GIS (IAU2000:49900 / EPSG:4326)</h4>
+            <p>Interactive orbital mosaic + geologic stratigraphy + candidate EVA corridors</p>
+          </div>
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <span class="badge badge-nasa" id="activeLayerBadge">NASA Mars Trek WMTS · HiRISE 25 cm/px</span>
+            <button type="button" class="chip-btn hud-chip" id="mapHudBtn">🥽 AR Visor</button>
+            <button type="button" class="chip-btn emergency-btn" id="emergencyBtn">⚠ Emergency Abort</button>
+          </div>
+        </div>
+
+        <div class="tour-bar">
+          <span class="tour-label">Postcard Flyover:</span>
+          <button type="button" class="chip-btn active" data-fly="overview">1. Overview</button>
+          <button type="button" class="chip-btn" data-fly="delta">2. Delta Fan (HNd)</button>
+          <button type="button" class="chip-btn" data-fly="belva">3. Belva Crater</button>
+          <button type="button" class="chip-btn" data-fly="neretva">4. Neretva Inlet (Hl)</button>
+          <button type="button" class="chip-btn" data-fly="seitah">5. Séítah Floor (Nol)</button>
+        </div>
+
+        <div class="map-wrap">
+          <canvas id="marsMapCanvas" tabindex="0" role="img" aria-label="Interactive Jezero Crater GIS Map"></canvas>
+
+          <!-- Interactive Map Tools Bar -->
+          <div class="map-tools-bar" role="toolbar" aria-label="Map interaction tools">
+            <button type="button" class="map-tool-btn active" id="toolInspectBtn" title="Inspect landmarks, routes, and geologic units">👆 Inspect</button>
+            <button type="button" class="map-tool-btn" id="toolRulerBtn" title="Click points on map to measure geodesic distance, bearing & O₂">📏 Ruler</button>
+            <button type="button" class="map-tool-btn" id="toolProfileBtn" title="Toggle interactive route elevation cross-section">📈 Elevation Profile</button>
+          </div>
+
+          <!-- Ruler Telemetry HUD -->
+          <div class="map-overlay ruler-hud" id="rulerHud">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:3px;">
+              <strong style="color:var(--accent); font-family:var(--font-mono); font-size:10.5px;">📏 GEODESIC RULER</strong>
+              <button type="button" class="popover-close" id="clearRulerBtn">Clear</button>
+            </div>
+            <div id="rulerReadout" style="font-family:var(--font-mono); font-size:10px; line-height:1.45;">
+              Click anywhere on the map to drop measurement points.
+            </div>
+          </div>
+
+          <!-- Dynamic Hover Tooltip -->
+          <div class="map-hover-tip" id="mapHoverTip" aria-hidden="true"></div>
+
+          <div class="map-overlay map-popover" id="mapPopover" role="dialog">
+            <button type="button" class="popover-close" id="closeMapPopoverBtn" aria-label="Close">✕</button>
+            <div id="mapPopoverContent"></div>
+          </div>
+
+          <div class="map-controls">
+            <button type="button" class="map-ctrl" id="zoomInBtn" title="Zoom in (+)">+</button>
+            <button type="button" class="map-ctrl" id="zoomOutBtn" title="Zoom out (−)">−</button>
+            <button type="button" class="map-ctrl reset" id="resetViewBtn" title="Reset view (R)">Reset</button>
+          </div>
+
+          <div class="map-overlay map-source-pill"><span class="dot"></span>NASA / USGS GIS</div>
+
+          <div class="map-overlay map-legend">
+            <span><i class="legend-dot" style="background:#1d6f42"></i>Station</span>
+            <span><i class="legend-dot" style="background:#cf4724"></i>Destination</span>
+            <span><i class="legend-dot" style="background:#e56c45"></i>Route A</span>
+            <span><i class="legend-dot" style="background:#1d6f42"></i>Route B</span>
+            <span><i class="legend-dot" style="background:#1c5d8c"></i>Route C</span>
+            <span><i class="legend-dot" style="background:#fbbf24"></i>Perseverance</span>
+            <span id="legendEmergency" style="display:none"><i class="legend-dot" style="background:#c82828"></i>⚠ Emergency</span>
+          </div>
+
+          <div class="map-overlay coord-readout" id="coordReadout">18.4620°N, 77.4150°E · IAU2000:49900</div>
+        </div>
+
+        <!-- Interactive Elevation Profile Cross-Section Drawer -->
+        <div class="elev-profile-panel" id="elevProfilePanel">
+          <div class="elev-profile-head">
+            <div>
+              <strong style="font-family:var(--font-display); font-size:13px;" id="elevProfileTitle">Route A · Elevation &amp; Geologic Cross-Section</strong>
+              <span style="color:var(--muted); margin-left:6px;">Hover or scrub across profile to preview scout position on map</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="elevProfileReadout" style="font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--accent);">Scrub profile to inspect</span>
+              <button type="button" class="popover-close" id="closeElevProfileBtn" title="Close profile">✕</button>
+            </div>
+          </div>
+          <div class="elev-canvas-wrap">
+            <canvas id="elevProfileCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="emergency-banner" id="emergencyBanner" role="alert">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+            <strong style="color:var(--danger); font-size:12.5px; text-transform:uppercase;">
+              ⚠ DUST STORM EMERGENCY PROTOCOL ACTIVE — SHORTEST PATH RETURN TO MAIN STATION
+            </strong>
+            <button type="button" class="chip-btn" id="cancelEmergencyBtn" style="border-color:var(--danger); color:var(--danger);">Clear Emergency</button>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:8px; font-size:11.5px;">
+            <div><span style="color:var(--muted)">Return Vector:</span> <strong id="emDist">--</strong></div>
+            <div><span style="color:var(--muted)">Emergency Pace:</span> <strong id="emTime">--</strong></div>
+            <div><span style="color:var(--muted)">Return O₂ / Reserve:</span> <strong id="emO2">--</strong></div>
+            <div><span style="color:var(--muted)">Status:</span> <strong id="emStatus">--</strong></div>
+          </div>
+          <div style="margin-top:6px; font-size:11px; color:var(--amber); font-weight:700;">
+            Auto-Selected Shortest Chord (Route C) · Bearing to Station: <span id="emBearing">--</span>
+          </div>
+        </div>
+
+        <div class="map-footer">
+          <span id="mapStatusLine">Active Traverse: Octavia E. Butler Landing → Belva Crater</span>
+          <span>Sources: <a href="https://trek.nasa.gov/mars/" target="_blank" rel="noopener noreferrer">NASA Mars Trek ↗</a> · <a href="https://astrogeology-usgs.hub.arcgis.com/pages/interactive-maps-mars" target="_blank" rel="noopener noreferrer">USGS Mars Maps ↗</a></span>
+        </div>
+      </div>
+
+      <!-- Right: Waypoints & Layer Stack -->
+      <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <div class="card-head">
+            <div>
+              <h4>Waypoints &amp; GIS Layer Stack</h4>
+              <p>Select stations and blend orbital &amp; geologic layers</p>
+            </div>
+            <span class="badge badge-nasa">5 Layers</span>
+          </div>
+
+          <div class="card-body">
+            <div class="field">
+              <label for="startSelect">Main Station / Starting Point</label>
+              <select id="startSelect">
+                <option value="butler">Octavia E. Butler Landing (18.4447°N, 77.4508°E)</option>
+                <option value="threeforks">Three Forks Sample Depot (18.4470°N, 77.4020°E)</option>
+                <option value="belva">Belva Crater · Delta Fan (18.4800°N, 77.3800°E)</option>
+                <option value="neretva">Neretva Vallis Margin (18.5000°N, 77.3400°E)</option>
+                <option value="jezerocenter">Jezero Basin Center (18.4100°N, 77.6900°E)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="destSelect">Destination</label>
+              <select id="destSelect">
+                <option value="belva" selected>Belva Crater · Delta Fan (18.4800°N, 77.3800°E)</option>
+                <option value="neretva">Neretva Vallis Margin (18.5000°N, 77.3400°E)</option>
+                <option value="threeforks">Three Forks Sample Depot (18.4470°N, 77.4020°E)</option>
+                <option value="butler">Octavia E. Butler Landing (18.4447°N, 77.4508°E)</option>
+                <option value="jezerocenter">Jezero Basin Center (18.4100°N, 77.6900°E)</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="nasaLayerSelect">Orbital Base Layer</label>
+              <select id="nasaLayerSelect">
+                <option value="hirise">MRO HiRISE Jezero Mosaic (0.25 m/px)</option>
+                <option value="ctx">MRO CTX Jezero Mosaic (6.0 m/px)</option>
+                <option value="midway">HiRISE / CTX / HRSC Jezero–Midway Blend</option>
+                <option value="mola">MGS MOLA Color Shaded Relief (463 m/px)</option>
+              </select>
+              <div class="opacity-row">
+                <span>Orbital Opacity:</span>
+                <input type="range" id="orbitalOpacitySlider" min="0.2" max="1" step="0.05" value="1" />
+                <span id="orbitalOpacityVal">100%</span>
+              </div>
+            </div>
+
+            <label>Thematic Overlays</label>
+
+            <div class="layer-box">
+              <div class="layer-top">
+                <label class="layer-check" for="usgsGeoToggle">
+                  <input type="checkbox" id="usgsGeoToggle" checked />
+                  <div><strong>USGS Geologic Units</strong><small>Click polygons or chips for stratigraphy</small></div>
+                </label>
+                <span class="badge badge-usgs">USGS</span>
+              </div>
+              <div class="opacity-row">
+                <span>Opacity:</span>
+                <input type="range" id="usgsOpacitySlider" min="0" max="0.85" step="0.05" value="0.34" />
+                <span id="usgsOpacityVal">34%</span>
+              </div>
+              <div class="usgs-chips">
+                <span class="usgs-chip" data-usgs-code="HNd" style="background:#d97706;">HNd Delta</span>
+                <span class="usgs-chip" data-usgs-code="HNl" style="background:#9a3412;">HNl Máaz</span>
+                <span class="usgs-chip" data-usgs-code="Nol" style="background:#15803d;">Nol Séítah</span>
+                <span class="usgs-chip" data-usgs-code="Hl" style="background:#1c5d8c;">Hl Carbonate</span>
+                <span class="usgs-chip" data-usgs-code="Nnu" style="background:#63348c;">Nnu Rim</span>
+                <span class="usgs-chip" data-usgs-code="Ac" style="background:#c82828;">Ac Ejecta</span>
+              </div>
+            </div>
+
+            <div class="layer-box">
+              <div class="layer-top">
+                <label class="layer-check" for="molaToggle">
+                  <input type="checkbox" id="molaToggle" />
+                  <div><strong>MGS MOLA Shaded Relief</strong><small>Topographic elevation contours</small></div>
+                </label>
+                <span class="badge badge-nasa">MOLA</span>
+              </div>
+              <div class="opacity-row">
+                <span>Opacity:</span>
+                <input type="range" id="molaOpacitySlider" min="0.1" max="0.95" step="0.05" value="0.45" />
+                <span id="molaOpacityVal">45%</span>
+              </div>
+            </div>
+
+            <div class="layer-box">
+              <div class="layer-top">
+                <label class="layer-check" for="roverTraverseToggle">
+                  <input type="checkbox" id="roverTraverseToggle" checked />
+                  <div><strong>Perseverance Path &amp; Callouts</strong><small>Verified Mars 2020 track + Sol nodes</small></div>
+                </label>
+                <span class="badge badge-nasa">NASA</span>
+              </div>
+            </div>
+
+            <div class="layer-box" style="margin-bottom:0;">
+              <div class="layer-top">
+                <label class="layer-check" for="routesToggle">
+                  <input type="checkbox" id="routesToggle" checked />
+                  <div><strong>EVA Corridors (A, B, C) &amp; Pins</strong><small>Candidate routes + 0.05° graticule</small></div>
+                </label>
+                <span class="badge badge-sim">Routes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body" style="border-top:1px dashed var(--border-strong); background:var(--panel2); font-size:11.5px;">
+          <strong>Great-Circle Chord:</strong> <span id="waypointChordReadout" style="font-family:var(--font-mono); font-weight:700; color:var(--accent);">8.45 km</span> ·
+          <strong>Net Elevation:</strong> <span id="waypointElevReadout" style="font-family:var(--font-mono); font-weight:700;">+68 m</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 02: ENVIRONMENT SIMULATION -->
+  <section id="section-environment" class="section">
+    <div class="sec-head">
+      <div class="sec-title">
+        <span class="sec-num">02</span>
+        <h3>Environment Simulation — Atmospheric Dust Attenuation &amp; Suit Bioenergetics</h3>
+      </div>
+      <p>Adjust dust optical depth (τ ≥ 2.2 auto-triggers Emergency Return), attenuation k, and astronaut + suit mass</p>
+    </div>
+
+    <div class="env-grid">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h4>Atmospheric Dust &amp; Visibility (MEDA RDS Reference)</h4>
+            <p>Beer-Lambert optical attenuation &amp; dust storm threshold (τ ≥ 2.2)</p>
+          </div>
+          <span class="badge badge-model">V = exp(−k·τ)</span>
+        </div>
+        <div class="card-body">
+          <div class="slider-box">
+            <div class="slider-top">
+              <label for="dustTauSlider" style="margin:0;">Dust Optical Depth (τ at 880 nm) <span class="badge badge-nasa">MEDA</span></label>
+              <span class="val" id="dustTauVal">0.5</span>
+            </div>
+            <input type="range" id="dustTauSlider" min="0.1" max="4.0" step="0.1" value="0.5" />
+            <div class="slider-note">
+              <code>τ ≈ 0.3–0.5</code> clear; <code>τ ≈ 0.7–1.2</code> moderate haze (shifts to Route B); <code>τ ≥ 2.2</code> critical dust storm (<strong>Auto-Triggers Emergency Return</strong>).
+            </div>
+          </div>
+
+          <div class="slider-box">
+            <div class="slider-top">
+              <label for="attenuationKSlider" style="margin:0;">Contrast Attenuation Coefficient (k)</label>
+              <span class="val" id="attenuationKVal">1.5</span>
+            </div>
+            <input type="range" id="attenuationKSlider" min="0.5" max="3.0" step="0.1" value="1.5" />
+            <div class="slider-note">Horizontal contrast extinction factor in Beer-Lambert transmission: <code>V = exp(−k × τ)</code>.</div>
+          </div>
+
+          <div class="readout-box">
+            <div>Relative Atmospheric Visibility: <strong id="envVisReadout" class="vis-good">47% (Good)</strong></div>
+            <div>Modeled EVA Pace Factor: <strong id="envPaceMultReadout">100% of nominal EVA walking speed</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h4>Astronaut &amp; Suit Bioenergetics</h4>
+            <p>Martian locomotion mechanics &amp; PLSS oxygen budget (550 L capacity)</p>
+          </div>
+          <span class="badge badge-model">g = 3.71 m/s²</span>
+        </div>
+        <div class="card-body">
+          <div class="slider-box">
+            <div class="slider-top">
+              <label for="suitMassSlider" style="margin:0;">Total Astronaut + Suit Mass (m)</label>
+              <span class="val" id="suitMassVal">165 kg</span>
+            </div>
+            <input type="range" id="suitMassSlider" min="120" max="220" step="5" value="165" />
+            <div class="slider-note">Combined body mass (~80 kg) + pressurized xEMU-class spacesuit and life-support pack (~85 kg). Heavy loads (<code>≥ 180 kg</code>) favor low-climb Route B.</div>
+          </div>
+
+          <div class="readout-box">
+            <div><strong>Locomotion Energy Equation:</strong></div>
+            <code style="display:block; font-family:var(--font-mono); font-size:11px; color:var(--accent); margin:4px 0; font-weight:700;">
+              E = (m·g·d·μ + m·g·Δh·8.4)/η + (P_basal + P_suit)·t
+            </code>
+            <div style="font-size:11px; color:var(--text-sub);">
+              • Surface Gravity: <strong>g = 3.71 m/s²</strong> · Efficiency: <strong>η = 0.22</strong><br>
+              • Basal + Suit Power: <strong>85 W + 235 W = 320 W</strong><br>
+              • Respiratory Conversion: <strong>4,184 J/kcal</strong> and <strong>4.81 kcal / L O₂</strong> (85 L safety reserve).
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:11px; padding:10px 14px; background:var(--amber-soft); border:1px dashed var(--amber-border); border-radius:11px; font-size:11.5px;">
+      <strong>⚠ Scientific Disclaimer:</strong> Dust optical depth ranges (<code>τ</code>) are grounded in NASA Perseverance MEDA measurements, while visibility percentages, walking pace reductions, and metabolic oxygen figures are <strong>simplified mission-planning estimates</strong>.
+    </div>
+  </section>
+
+  <!-- SECTION 03: ROUTE ANALYSIS -->
+  <section id="section-routes" class="section">
+    <div class="sec-head">
+      <div class="sec-title">
+        <span class="sec-num">03</span>
+        <h3>Route Analysis — Simulated Traverse Comparison &amp; Cost Impact</h3>
+      </div>
+      <p>Change Mission Priority, Dust τ/k, Suit Mass, or Waypoints—the recommended corridor updates automatically</p>
+    </div>
+
+    <div class="rec-header">
+      <div>
+        <div class="field" style="margin-bottom:9px;">
+          <label for="prioritySelect">Mission Optimization Priority</label>
+          <select id="prioritySelect">
+            <option value="balanced">Balanced Exploration (O₂, Safety, Science, Time)</option>
+            <option value="oxygen">Minimize O₂ &amp; Metabolic Expenditure</option>
+            <option value="safety">Prioritize Terrain Safety (Low Slope &amp; Friction)</option>
+            <option value="science">Maximize Science Return (Outcrop Targets)</option>
+            <option value="speed">Minimize Travel Distance &amp; Duration</option>
+          </select>
+        </div>
+        <button type="button" class="primary-btn" id="applyRecommendationBtn">★ Auto-Following Recommended (Route A)</button>
+      </div>
+
+      <div class="rec-box" id="recommendationBanner" aria-live="polite">
+        <div class="rec-top">
+          <strong id="recHeadline">★ Recommended Route: Route A · Delta Fan Rim</strong>
+          <span class="badge badge-model" id="recPriorityBadge">BALANCED PRIORITY</span>
+        </div>
+        <div style="font-size:12px;" id="recExplanation"></div>
+        <div class="score-pills" id="recScorePills"></div>
+      </div>
+    </div>
+
+    <div class="routes-grid">
+      <div class="route-card selected" data-route="A" tabindex="0" role="button" aria-pressed="true">
+        <div>
+          <div class="route-top">
+            <div><h4>Route A · Delta Fan Rim</h4><span class="badge badge-sim">Simulated</span></div>
+            <span class="route-tag" id="routeTagA">★ RECOMMENDED</span>
+          </div>
+          <p class="route-desc">Ascends the steep western delta scarp along firm bedrock benches (USGS unit HNd). Maximum outcrop access (3 primary targets) and firm traction (μ = 0.16), but steep scarp climbing increases O₂ burn under heavy suit loads.</p>
+          <table class="metrics-tbl">
+            <tr><td>Distance (×1.28 tortuosity)</td><td id="tblDistA">4.8 km</td></tr>
+            <tr><td>Estimated Duration</td><td id="tblTimeA">3.5 hrs</td></tr>
+            <tr><td>Modeled Pace</td><td id="tblPaceA">1.38 km/h</td></tr>
+            <tr><td>Oxygen &amp; Energy Cost</td><td id="tblO2A">389 L O₂ (1,871 kcal)</td></tr>
+            <tr><td>PLSS Tank Remaining (550 L)</td><td id="tblRemA"><span class="feas-badge feas-nominal">161 L (NOMINAL)</span></td></tr>
+            <tr><td>Work (Flat / Climb)</td><td id="tblWorkA">470 kJ / 596 kJ</td></tr>
+            <tr><td>Hazard &amp; Friction</td><td>Moderate (Δh +116m, μ=0.16)</td></tr>
+            <tr><td>Science Targets</td><td>High (3 Primary)</td></tr>
+          </table>
+        </div>
+        <div class="route-foot"><strong>Tradeoff:</strong> Best science return (3 targets) on firm bedrock; steep scarp climb penalizes heavy loads.</div>
+      </div>
+
+      <div class="route-card" data-route="B" tabindex="0" role="button" aria-pressed="false">
+        <div>
+          <div class="route-top">
+            <div><h4>Route B · Smooth Floor</h4><span class="badge badge-sim">Simulated</span></div>
+            <span class="route-tag" id="routeTagB">SAFEST TERRAIN</span>
+          </div>
+          <p class="route-desc">Follows the graded basin floor (USGS unit HNl) around steep scarps and rough ejecta. Minimal elevation climb and smooth footing (μ = 0.17) make it the safest and most O₂-efficient corridor.</p>
+          <table class="metrics-tbl">
+            <tr><td>Distance (×1.42 tortuosity)</td><td id="tblDistB">5.3 km</td></tr>
+            <tr><td>Estimated Duration</td><td id="tblTimeB">3.6 hrs</td></tr>
+            <tr><td>Modeled Pace</td><td id="tblPaceB">1.48 km/h</td></tr>
+            <tr><td>Oxygen &amp; Energy Cost</td><td id="tblO2B">303 L O₂ (1,457 kcal)</td></tr>
+            <tr><td>PLSS Tank Remaining (550 L)</td><td id="tblRemB"><span class="feas-badge feas-nominal">247 L (NOMINAL)</span></td></tr>
+            <tr><td>Work (Flat / Climb)</td><td id="tblWorkB">552 kJ / 123 kJ</td></tr>
+            <tr><td>Hazard &amp; Friction</td><td>Very Low (Δh +24m, μ=0.17)</td></tr>
+            <tr><td>Science Targets</td><td>Moderate (2 Targets)</td></tr>
+          </table>
+        </div>
+        <div class="route-foot"><strong>Tradeoff:</strong> Lowest O₂ burn and safest terrain in dust haze; slightly longer floor detour.</div>
+      </div>
+
+      <div class="route-card" data-route="C" tabindex="0" role="button" aria-pressed="false">
+        <div>
+          <div class="route-top">
+            <div><h4>Route C · Direct Chord</h4><span class="badge badge-sim">Simulated</span></div>
+            <span class="route-tag" id="routeTagC">SHORTEST DIST</span>
+          </div>
+          <p class="route-desc">Cuts directly across the unconsolidated boulder apron (USGS unit Ac). Shortest and fastest geometric chord (auto-selected for emergency return), though high boulder rolling friction (μ = 0.29) elevates hazard.</p>
+          <table class="metrics-tbl">
+            <tr><td>Distance (×1.12 tortuosity)</td><td id="tblDistC">4.2 km</td></tr>
+            <tr><td>Estimated Duration</td><td id="tblTimeC">2.7 hrs</td></tr>
+            <tr><td>Modeled Pace</td><td id="tblPaceC">1.56 km/h</td></tr>
+            <tr><td>Oxygen &amp; Energy Cost</td><td id="tblO2C">336 L O₂ (1,616 kcal)</td></tr>
+            <tr><td>PLSS Tank Remaining (550 L)</td><td id="tblRemC"><span class="feas-badge feas-nominal">214 L (NOMINAL)</span></td></tr>
+            <tr><td>Work (Flat / Climb)</td><td id="tblWorkC">745 kJ / 421 kJ</td></tr>
+            <tr><td>Hazard &amp; Friction</td><td>Elevated (Δh +82m, μ=0.29)</td></tr>
+            <tr><td>Science Targets</td><td>Low (1 Target)</td></tr>
+          </table>
+        </div>
+        <div class="route-foot"><strong>Tradeoff:</strong> Fastest &amp; shortest geometric chord to destination; higher boulder rolling friction.</div>
+      </div>
+    </div>
+
+    <div id="costImpactAnalysisBox"></div>
+  </section>
+
+  <!-- SECTION 04: SCIENCE & SOURCES -->
+  <section id="section-science" class="section">
+    <div class="sec-head">
+      <div class="sec-title">
+        <span class="sec-num">04</span>
+        <h3>Science &amp; Sources — Landmark Geology, CRISM Mineralogy &amp; Transparency</h3>
+      </div>
+      <p>Inspect Jezero Crater CRISM mineralogy, geologic interpretations, and data provenance</p>
+    </div>
+
+    <div class="card">
+      <div class="airmail-bar" aria-hidden="true"></div>
+      <div class="tab-bar" role="tablist">
+        <button type="button" class="tab-btn active" id="tabBtnCrism" role="tab" aria-selected="true" aria-controls="panelCrism">1. Landmark Geology &amp; CRISM Mineralogy</button>
+        <button type="button" class="tab-btn" id="tabBtnMethodology" role="tab" aria-selected="false" aria-controls="panelMethodology">2. NASA Data vs. Model Transparency</button>
+      </div>
+
+      <div class="tab-panel active" id="panelCrism" role="tabpanel">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;" id="scienceLandmarkBar"></div>
+        <div id="scienceLandmarkDetail"></div>
+      </div>
+
+      <div class="tab-panel" id="panelMethodology" role="tabpanel">
+        <div class="trans-grid">
+          <div class="trans-box">
+            <h5><span>A. Authentic NASA &amp; USGS Data</span><span class="badge badge-nasa">Verified</span></h5>
+            <ul>
+              <li><strong>NASA Mars Trek WMTS &amp; ASU MOLA:</strong> OGC tile layers for MRO HiRISE (0.25 m/px), CTX (6 m/px), Midway blend, and MGS MOLA Color Shaded Relief (463 m/px) in <code>IAU2000:49900</code>.</li>
+              <li><strong>USGS Planetary Geologic Map Units:</strong> Standardized Jezero units (<code>HNd</code> Delta Fan, <code>HNl</code> Máaz Floor, <code>Nol</code> Séítah Olivine, <code>Hl</code> Marginal Carbonate, <code>Nnu</code> Crater Rim, <code>Ac</code> Belva Ejecta).</li>
+              <li><strong>Atmosphere &amp; Dust (MEDA RDS):</strong> Climatological dust optical depth reference ranges (<code>τ</code> at 880 nm) from Perseverance MEDA RDS.</li>
+              <li><strong>MRO CRISM Spectral Cubes:</strong> Published PDS spectral records for Jezero mineralogy.</li>
+            </ul>
+          </div>
+          <div class="trans-box">
+            <h5><span>B. MarsPath Physics &amp; Math</span><span class="badge badge-model">Calculated</span></h5>
+            <ul>
+              <li><strong>Great-Circle Distance:</strong> Spherical haversine formula using Mars mean radius <code>R = 3,389.5 km</code>.</li>
+              <li><strong>Mechanical Work:</strong> Horizontal traction work <code>W_flat = m·g·d·μ</code> plus climb work <code>W_climb = m·g·(Δh·8.4)</code> with <code>g = 3.71 m/s²</code>.</li>
+              <li><strong>Metabolic &amp; O₂ Cost:</strong> <code>E = (W_flat + W_climb)/η + (P_basal + P_suit)·t</code> with <code>η = 0.22</code>, <code>320 W</code> suit/basal load, <code>4,184 J/kcal</code>, and <code>4.81 kcal/L O₂</code>.</li>
+              <li><strong>Beer-Lambert Visibility:</strong> Atmospheric transmission <code>V = exp(−k·τ)</code>.</li>
+            </ul>
+          </div>
+          <div class="trans-box">
+            <h5><span>C. Simulated Alternatives</span><span class="badge badge-sim">Simulated</span></h5>
+            <ul>
+              <li><strong>Route Corridors (A, B, C):</strong> Polyline geometries, tortuosity multipliers, elevation climb profiles, and surface friction coefficients (μ = 0.16, 0.17, 0.29) represent distinct Martian traverse archetypes.</li>
+              <li><strong>Dust Storm Auto-Abort (τ ≥ 2.2):</strong> Automatically activates Emergency Mode, plots the direct return vector to Main Station, and selects Route C.</li>
+            </ul>
+          </div>
+          <div class="trans-box">
+            <h5><span>D. Model Assumptions &amp; Limits</span><span class="badge badge-warn">Limitations</span></h5>
+            <ul>
+              <li><strong>Live AI Telemetry:</strong> MarsPath Site AI Analyst connects to Gemini 3 Flash with live mission state context and includes a deterministic offline physics fallback.</li>
+              <li><strong>Simplified Bioenergetics:</strong> Constant efficiency (η = 0.22) and linear terrain friction (μ) represent first-order mission estimates rather than detailed gait modeling.</li>
+              <li><strong>MOLA Elevation Datum:</strong> Local decimeter scarp slopes require stereo HiRISE DTMs for footstep-level planning.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div><strong>Postcards from Mars · MarsPath NASA GIS &amp; Expedition Planner</strong> · NASA Space Apps Challenge</div>
+    <div>
+      <a href="https://trek.nasa.gov/mars/" target="_blank" rel="noopener noreferrer">NASA Mars Trek</a> ·
+      <a href="https://astrogeology-usgs.hub.arcgis.com/pages/interactive-maps-mars" target="_blank" rel="noopener noreferrer">USGS Mars Maps</a> ·
+      <a href="https://mars.nasa.gov/mars2020/multimedia/raw-images/" target="_blank" rel="noopener noreferrer">Perseverance Raw Images</a>
+    </div>
+  </footer>
+</main>
+
+<!-- AR HELMET VISOR HUD OVERLAY -->
+<section class="visor-overlay" id="visorHudModal" role="dialog" aria-modal="true" aria-label="Spacesuit Helmet Visor AR HUD">
+  <div class="visor-world" id="visorWorld">
+    <svg class="visor-terrain-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="marsSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#1c100c"/><stop offset="45%" stop-color="#6e3a24"/><stop offset="68%" stop-color="#c47c52"/><stop offset="100%" stop-color="#3a1c12"/>
+        </linearGradient>
+        <linearGradient id="marsGround" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#633220"/><stop offset="100%" stop-color="#1a0c08"/>
+        </linearGradient>
+      </defs>
+      <rect width="1920" height="1080" fill="url(#marsSky)"/>
+      <path d="M0 570 L290 548 L630 520 L820 485 L1210 490 L1620 498 L1920 508 L1920 640 L0 640 Z" fill="#5e3222" opacity="0.65"/>
+      <path d="M0 605 L310 545 L560 540 L680 575 L1080 542 L1490 582 L1920 585 L1920 660 L0 660 Z" fill="#52291b"/>
+      <rect x="0" y="625" width="1920" height="455" fill="url(#marsGround)"/>
+      <polygon points="1290,770 1325,742 1365,758 1375,782 1280,785" fill="#2c140d" stroke="#7a432e" stroke-width="1.5"/>
+      <polygon points="1450,835 1505,795 1560,818 1570,852 1435,855" fill="#24100a" stroke="#6e3a26" stroke-width="1.5"/>
+    </svg>
+
+    <svg class="visor-ar-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+      <line x1="0" y1="620" x2="1920" y2="620" stroke="#5cd68d" stroke-width="1" stroke-dasharray="10 14" opacity="0.4"/>
+      <text x="960" y="610" fill="#5cd68d" font-size="12" text-anchor="middle" opacity="0.65" letter-spacing="3">LOCAL HORIZON · JEZERO FLOOR (−2,540m MOLA)</text>
+
+      <g id="arGroupB" opacity="0.4">
+        <path d="M 860 1080 Q 610 860 470 618" fill="none" stroke="#a8d8b5" stroke-width="5" stroke-dasharray="14 10"/>
+        <text x="535" y="810" fill="#a8d8b5" font-size="14" font-weight="bold">ROUTE B · SMOOTH FLOOR (μ=0.17)</text>
+      </g>
+      <g id="arGroupA" opacity="1">
+        <path d="M 960 1080 Q 910 830 835 568" fill="none" stroke="#f6d47d" stroke-width="7" stroke-dasharray="18 10"/>
+        <polyline points="895,940 935,910 975,940" fill="none" stroke="#5cd68d" stroke-width="3.5"/>
+        <polyline points="875,820 905,795 935,820" fill="none" stroke="#5cd68d" stroke-width="3"/>
+        <text x="955" y="765" fill="#f6d47d" font-size="15" font-weight="bold">ROUTE A · DELTA SCARP RIM (μ=0.16)</text>
+      </g>
+      <g id="arGroupC" opacity="0.4">
+        <path d="M 1060 1080 Q 1240 840 1350 605" fill="none" stroke="#91b9e8" stroke-width="5" stroke-dasharray="12 10"/>
+        <text x="1220" y="790" fill="#91b9e8" font-size="14" font-weight="bold">ROUTE C · DIRECT CHORD (μ=0.29)</text>
+      </g>
+      <g id="arGroupEmergency" opacity="0">
+        <path d="M 960 1080 Q 1020 800 1100 590" fill="none" stroke="#ff4444" stroke-width="8" stroke-dasharray="16 8"/>
+        <text x="1040" y="720" fill="#ff6b5b" font-size="16" font-weight="bold">⚠ EMERGENCY CORRIDOR · DIRECT TO SHELTER</text>
+      </g>
+    </svg>
+    <div class="visor-pins-layer" id="visorPinsLayer"></div>
+  </div>
+
+  <div class="visor-glass-fx" aria-hidden="true"></div>
+
+  <div class="visor-em-center">
+    <h2>⚠ EMERGENCY PROTOCOL ACTIVE</h2>
+    <p id="visorEmergencySub">EVACUATION ROUTE SET: OCTAVIA E. BUTLER SHELTER · MAINTAIN 1.8 KM/H PACE</p>
+  </div>
+
+  <div class="visor-top">
+    <div class="visor-pill">
+      <div style="color:var(--hud-cyan);font-weight:700">xEMU HELMET VISOR · REV 5.0</div>
+      <div>LOC: <span id="hudStartLabel">OCTAVIA E. BUTLER LANDING</span></div>
+      <div>GRAVITY: <strong>3.71 m/s²</strong> · ATMO: <strong>7.3 mbar CO₂</strong></div>
+      <div style="font-size:9.5px; margin-top:2px; color:var(--hud-amber)">DUST τ: <span id="hudDustTau">0.5</span></div>
+    </div>
+
+    <div class="visor-compass">
+      <div class="visor-compass-win">
+        <div class="visor-compass-tape" id="visorCompassTape">
+          <span>240° WSW</span><span>270° W</span><span>300° WNW</span><span>330° NNW</span>
+          <span style="color:var(--hud-amber)">000° N</span><span>030° NNE</span><span>060° ENE</span>
+          <span>090° E</span><span>120° ESE</span>
+        </div>
+      </div>
+      <div class="visor-compass-caret" id="visorHeadingReadout">▲ HDG 318° NW · TARGET BEARING</div>
+    </div>
+
+    <button type="button" class="visor-exit" id="closeVisorBtn">✕ Exit Visor [ESC]</button>
+  </div>
+
+  <div class="visor-bottom">
+    <div class="visor-panel">
+      <h4><span>PLSS LIFE SUPPORT</span><span id="hudLifeSupportStatus">● NOMINAL</span></h4>
+      <div class="plss-grid">
+        <div class="plss-cell"><span>O₂ Consumed</span><strong id="hudO2Value">389 L</strong></div>
+        <div class="plss-cell"><span>Metabolic Energy</span><strong id="hudKcalValue">1,871 kcal</strong></div>
+        <div class="plss-cell"><span>PLSS Battery</span><strong id="hudBatteryValue">84%</strong></div>
+        <div class="plss-cell"><span>Suit Load</span><strong id="hudSuitMass">4.3 psi · 165 kg</strong></div>
+      </div>
+      <div class="o2-label"><span>O₂ TANK RESERVE (550 L)</span><strong id="hudO2ReservePct">29% REMAINING</strong></div>
+      <div class="o2-track"><div class="o2-fill" id="hudO2BarFill"></div></div>
+    </div>
+
+    <div class="hud-hint">Move mouse or drag to pan view · Click reticle to retarget · ESC to exit</div>
+
+    <div class="visor-panel">
+      <h4><span>ACTIVE TRAVERSE CORRIDOR</span><span id="hudActiveRouteTag" style="color:var(--hud-amber)">ROUTE A</span></h4>
+      <div class="hud-routes">
+        <button type="button" class="hud-route-btn active" data-hud-route="A">Route A (Rim)</button>
+        <button type="button" class="hud-route-btn" data-hud-route="B">Route B (Floor)</button>
+        <button type="button" class="hud-route-btn" data-hud-route="C">Route C (Direct)</button>
+      </div>
+      <div style="font-size:11px; color:#d6f5e3" id="hudRouteSummary">
+        Target: <strong>Belva Crater</strong> · Dist: <strong>4.8 km</strong> · Climb: <strong>+116 m</strong> · Friction: <strong>μ=0.16</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SITE ANALYST CHATBOT -->
+<button type="button" class="copilot-fab" id="copilotFab" aria-label="Open MarsPath AI Coordinate Analyst">
+  <span class="copilot-pulse"></span><span>🤖 AI Coordinate Report</span>
+</button>
+
+<aside class="copilot-drawer" id="copilotDrawer" role="dialog" aria-label="MarsPath AI Coordinate Analyst">
+  <div class="copilot-head">
+    <div>
+      <h4>🤖 Site AI Analyst <span class="badge badge-nasa" id="copilotEngineBadge">Gemini 3 Flash</span></h4>
+      <p>Ask mission questions or analyze exact Mars coordinates</p>
+    </div>
+    <div style="display:flex; gap:5px;">
+      <button type="button" class="icon-btn" id="clearCopilotBtn" title="Clear chat">🗑️</button>
+      <button type="button" class="icon-btn" id="closeCopilotBtn" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="copilot-bar">
+    <div class="copilot-row">
+      <input type="text" class="copilot-input" id="copilotCoordInput" value="18.4800, 77.3800" placeholder="Lat, Lon (e.g. 18.4800, 77.3800)" />
+      <button type="button" class="copilot-btn" id="syncDestCoordBtn">📍 Dest</button>
+      <button type="button" class="copilot-btn primary" id="analyzeCoordBtn">Full Report</button>
+    </div>
+    <div class="copilot-chips">
+      <button type="button" class="copilot-chip" data-copilot-q="current">📍 Active Dest</button>
+      <button type="button" class="copilot-chip" data-copilot-ask="Compare Routes A, B, and C right now for oxygen, safety, and science.">⚖️ Compare Routes</button>
+      <button type="button" class="copilot-chip" data-copilot-ask="Evaluate my current dust storm risk and PLSS oxygen margin.">🛡️ Risk &amp; O₂ Check</button>
+      <button type="button" class="copilot-chip" data-copilot-q="18.5000, 77.3400">Neretva Inlet</button>
+    </div>
+  </div>
+
+  <div class="copilot-msgs" id="copilotMessages" aria-live="polite"></div>
+
+  <form class="copilot-form" id="copilotChatForm">
+    <input type="text" class="copilot-input" id="copilotChatInput" placeholder="Ask about geology, routes, O₂, or coords..." autocomplete="off" />
+    <button type="submit" class="copilot-btn primary" id="copilotSendBtn">Send</button>
+  </form>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

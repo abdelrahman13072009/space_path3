@@ -1,0 +1,8 @@
+Structural refactor notes
+=========================
+- Original inline CSS moved to root-level style.css.
+- Original static JavaScript data declarations moved verbatim to root-level data.js.
+- Remaining original JavaScript moved to root-level app.js.
+- index.html references style.css, data.js, and app.js in the repository root.
+- No folders are required; all project files are at the same level.
+- Main data declarations were preserved without intentional changes.
